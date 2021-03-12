@@ -5,6 +5,7 @@ import logolocks from './component/icons/logolocks1.png';
 import heart from './component/icons/heart.svg';
 import lock from './component/icons/lock.2a916e83.webp';
 import door from './component/icons/door.a7527e00.webp';
+import key from './component/icons/key.png';
 import { Redirect, Route, useHistory } from "react-router";
 import CreateAccount from './component/login/CreateAccount';
 import Login from './component/login/Login';
@@ -34,19 +35,19 @@ function App(props:any) {
     <div className="App">
       <div className='row'>
         <div className='col-2' >
-           <img style={{width:'12.7rem',float:'left',cursor:'pointer'}} alt="locks" src={logolocks}  onClick={localStorage.getItem("access_token")? icon : login} />
+           <img style={{width:'10.7rem',float:'left',cursor:'pointer'}} alt="locks" src={logolocks}  onClick={localStorage.getItem("access_token")? icon : login} />
         </div>
-        <div className='col-6'>
-          <p style={{fontSize:'1.5rem',paddingTop:'1rem',marginBottom:'0px',paddingLeft:'1rem',fontStyle:'italic',textAlign:'right'}}>Thank you for supporting Small Business</p>
+        <div className='col-6 align-items-center m-0 justify-content-end d-flex'>
+          <p style={{fontStyle:'italic',textAlign:'right', margin: 0}}>Thank you for supporting Small Business</p>
         </div>
-        <div className='col-2' style={{textAlign:'left'}}>
-          <img style={{width:'2.55rem',padding:'0.55rem 0px 0px 0px',margin:0}} alt="heart" src={heart} />
-          <img style={{width:'2.5rem',padding:'0.55rem 0px 0px 0px',margin:0}} alt="door" src={door} />
-          <img style={{width:'2.38rem',padding:'0.55rem 0px 0px 0px',margin:0}} alt="locks" src={lock} />
+        <div className='col-2  align-items-center justify-content-center d-flex' style={{textAlign:'left'}}>
+          <img style={{width:'1.55rem',margin:0}} alt="heart" src={heart} />
+          <img style={{width:'1.55rem',margin:0}} alt="door" src={door} />
+          <img style={{width:'1.55rem',margin:0}} alt="locks" src={key} />
           
         </div>
-        <div className='col-2'>
-            <p style={{fontSize:'1.25rem',textAlign:'left',marginLeft:'-4.5rem',paddingTop:'1rem',marginBottom:0,fontStyle:'italic'}}>#YYC Local</p>
+        <div className='col-2 align-items-center justify-content-center d-flex'>
+            <p style={{fontSize:'1rem',textAlign:'left', margin: 0,fontStyle:'italic'}}>#YYC Local</p>
           </div>
       </div>
           <Route exact path="/" component={Login} />

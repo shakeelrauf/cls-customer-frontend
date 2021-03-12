@@ -265,7 +265,7 @@ class ViewKeys extends React.Component<{},Props> {
         <>
        <div className="row">
             <div className="col-2" style={{marginTop:"1.25rem",marginRight:"1.875rem",marginLeft:"-2.5rem",width:'65%'}}>
-               <img alt="warning" src={warning}/><br></br><span>{this.state.door_compromised} Door Compermised</span>
+               <img alt="warning" src={warning}/><br></br><span>{this.state.door_compromised} Door Compromised</span>
             </div>
             <button style={{marginTop:"1.25rem",marginLeft:"0.938rem", height:"3.875rem",width:"9.063rem"}}  type="button" className="btn btn-outline-info"><img style={{marginTop:"0.438rem",marginRight:"0.5rem",width:'32%'}} alt="schedule" src={schedule}/>Schedule<span style={{marginTop:"-1.125rem",marginRight:"-2.25rem",display:"block"}}> Service</span></button>
             <a href={`${baseURL}/api/kdfinder/csv/key-qty/${this.state.currentuser.id}/${this.state.isSelected}/`} style={{marginTop:"1.25rem",marginLeft:"0.938rem",height:"3.875rem",width:"10.25rem"}} 

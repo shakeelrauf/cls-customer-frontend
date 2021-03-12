@@ -152,8 +152,8 @@ class SystemNumber extends React.Component<{},Props> {
           <table className="table table-striped">
             <thead >
               <tr>
-                <th style={{fontWeight:500}} scope="col">System number</th>
-                <th style={{fontWeight:500}} scope="col">Location</th>
+                <th style={{fontWeight:500}} scope="col">System Number</th>
+                <th style={{fontWeight:500}} scope="col">System Name</th>
                 <th style={{fontWeight:500,textAlign:"right"}} scope="col">Action</th>
               </tr>
             </thead>

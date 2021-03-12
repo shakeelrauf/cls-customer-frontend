@@ -10,7 +10,7 @@ import audit from '../icons/audit.svg';
 import keys from '../icons/keys.svg';
 import company from '../icons/company.svg';
 import axiosInstance from '../../api/api';
-import { Link, NavLink, useHistory } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import logouticon from '../icons/log-out.svg';
 
 let Sidebarr =()=> {
@@ -45,28 +45,45 @@ let Sidebarr =()=> {
         <div>
         <Nav className="col-md-12 d-none d-md-block sidebar">
         <div className="sidebarhead">Welcome <p style={{textAlign:"center"}}>{username}</p> </div>
-               <hr className='line' />
-                { (localStorage.getItem('invoice')=== 'false' || localStorage.getItem('quotes')=== 'false')   ? <span className="sidetext" style={{cursor:'not-allowed'}} ><img className='sideicons' alt="sidebar" src={accounting}/>
-                    <span className='linktext'>Pay Bills</span></span> : <NavLink className="sidetext"  to="/home/accounting" ><img className='sideicons' alt="sidebar" src={accounting}/>
-                    <span className='linktext'>Pay Bills</span></NavLink>}
-                { (localStorage.getItem('invoice')=== 'false' || localStorage.getItem('quotes')=== 'false')  ? <span className="sidetext" style={{cursor:'not-allowed'}} ><img className='sideicons' alt="sidebar" src={quotation}/>
-                    <span className='linktext'>Quotations</span></span> : <NavLink className="sidetext" to="/home/quotations" ><img className='sideicons' alt="sidebar" src={quotation}/>
-                    <span className='linktext'>Quotations</span></NavLink>}
-                <NavLink className="sidetext" to="/home/servicerequest"><img className='sideicons' alt="sidebar" src={service}/>
-                    <span className='linktext'>Request Service</span></NavLink>
-                { localStorage.getItem('key_finder')=== 'true'?<NavLink className="sidetext" to="/home/viewkeys"><img className='sideicons' alt="sidebar" src={keys}/>
-                    <span className='linktext'>Manage Keys</span></NavLink> : <span className="sidetext" style={{cursor:'not-allowed'}}><img className='sideicons' alt="sidebar" src={keys}/>
-                    <span className='linktext'>Manage Keys</span></span>}
-                { localStorage.getItem('audit')=== 'true'? <NavLink className="sidetext" to="/home/auditreport"><img className='sideicons' alt="sidebar" src={audit}/>
-                    <span className='linktext'>Audit Trail</span></NavLink> : <span className="sidetext" style={{cursor:'not-allowed'}}><img className='sideicons' alt="sidebar" src={audit}/>
-                    <span className='linktext'>Audit Trail</span></span>}
-                <NavLink className="sidetext"  to="/home/companydetails" ><img className='sideicons' alt="sidebar" src={company}/>                
-                    <span className='linktext'>Company Locations</span></NavLink>
-                <NavLink className="sidetext" to="/home/manageuser"><img className='sideicons' alt="sidebar" src={manage}/>
-                    <span className='linktext'>Manage Users</span></NavLink>
-                { (localStorage.getItem('user_type')=== 'primary') ? <NavLink className="sidetext" to="/home/systemnumber"><img className='sideicons' alt="sidebar" src={manage}/>
-                    <span className='linktext'>System Number</span></NavLink> : ''}
-                
+          <hr className='line' />
+            <ul className="nav">
+              <li className="nav-item text-start w-100">
+                { (localStorage.getItem('invoice')=== 'false' || localStorage.getItem('quotes')=== 'false')   ? <span className="sidetext p-1 pl-4  nav-link" style={{cursor:'not-allowed'}} ><img className='sideicons' alt="sidebar" src={accounting}/>
+                    <span className='linktext ml-2'>Pay Bills</span></span> : <NavLink className="sidetext p-1 pl-4  nav-link nav-link"  to="/home/accounting" ><img className='sideicons' alt="sidebar" src={accounting}/>
+                    <span className='linktext ml-2'>Pay Bills</span></NavLink>}
+              </li>
+              <li className="nav-item text-start w-100">
+                { (localStorage.getItem('invoice')=== 'false' || localStorage.getItem('quotes')=== 'false')  ? <span className="sidetext p-1 pl-4  nav-link" style={{cursor:'not-allowed'}} ><img className='sideicons' alt="sidebar" src={quotation}/>
+                    <span className='linktext ml-2'>Quotations</span></span> : <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/quotations" ><img className='sideicons' alt="sidebar" src={quotation}/>
+                    <span className='linktext ml-2'>Quotations</span></NavLink>}
+              </li>
+              <li className="nav-item text-start w-100">
+                <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/servicerequest"><img className='sideicons' alt="sidebar" src={service}/>
+                    <span className='linktext ml-2'>Request Service</span></NavLink>
+              </li>
+              <li className="nav-item text-start w-100">
+                { localStorage.getItem('key_finder')=== 'true'?<NavLink className="sidetext p-1 pl-4  nav-link" to="/home/viewkeys"><img className='sideicons' alt="sidebar" src={keys}/>
+                    <span className='linktext ml-2'>Manage Keys</span></NavLink> : <span className="sidetext p-1 pl-4  nav-link" style={{cursor:'not-allowed'}}><img className='sideicons' alt="sidebar" src={keys}/>
+                    <span className='linktext ml-2'>Manage Keys</span></span>}
+              </li>
+              <li className="nav-item text-start w-100">
+                { localStorage.getItem('audit')=== 'true'? <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/auditreport"><img className='sideicons' alt="sidebar" src={audit}/>
+                    <span className='linktext ml-2'>Audit Trail</span></NavLink> : <span className="sidetext p-1 pl-4  nav-link" style={{cursor:'not-allowed'}}><img className='sideicons' alt="sidebar" src={audit}/>
+                    <span className='linktext ml-2'>Audit Trail</span></span>}
+              </li>
+              <li className="nav-item text-start w-100">
+                <NavLink className="sidetext p-1 pl-4  nav-link"  to="/home/companydetails" ><img className='sideicons' alt="sidebar" src={company}/>                
+                    <span className='linktext ml-2'>Company Locations</span></NavLink>
+              </li>
+              <li className="nav-item text-start w-100">
+                <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/manageuser"><img className='sideicons' alt="sidebar" src={manage}/>
+                    <span className='linktext ml-2'>Manage Users</span></NavLink>
+              </li>
+              <li className="nav-item text-start w-100">
+                { (localStorage.getItem('user_type')=== 'primary') ? <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/systemnumber"><img className='sideicons' alt="sidebar" src={manage}/>
+                    <span className='linktext ml-2'>System Number</span></NavLink> : ''}
+              </li>
+            </ul>
                     <div>
                         <span style={{marginTop:"0.625rem",marginRight:"3.125rem",marginBottom:'1.25rem',fontSize:'1rem'}} className="detail-created" onClick={()=>changepassword()}>Change Password</span>
                         <hr className='line' />

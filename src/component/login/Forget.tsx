@@ -105,10 +105,7 @@ let Forget = () =>{
                     </div>
                 </div>
                 <div > 
-                    <label style={{marginTop:"2.5rem",paddingLeft:'6.25rem'}}>
-                       Do have an account?
-                    </label>
-                    <label className="create" onClick={login}  style={{marginLeft:"16.25rem",marginTop:"-2rem",fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
+                    <label className="create mt-2" onClick={login}  style={{fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
                        Login 
                     </label>
                 </div>

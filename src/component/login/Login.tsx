@@ -200,10 +200,7 @@ let Login=()=> {
                     <button style={{width:"22.063rem",height:"2.5rem",backgroundColor:"#009ED6"}} className="btn btn-primary" type="submit">Login</button>
                 </div>
                 <div>
-                    <label style={{marginTop:"2.5rem",marginLeft:"2.188rem"}}>
-                       Don't have an account?
-                    </label>
-                    <label className="create" onClick={login} style={{marginLeft:"12.75rem",marginTop:"-2rem",fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
+                    <label className="create mt-2" onClick={login} style={{fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
                        Create Account 
                     </label>
                 </div>
