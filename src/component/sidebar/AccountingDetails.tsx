@@ -252,15 +252,15 @@ class AccountingDetails extends React.Component<{locationNo:any,cus_no:any,load:
          
           <div>
           <Modal style={this.customStyles} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>{this.renderModal()}</Modal>
-          <table className="table table-striped" style={{border :'2px solid #12739A'}}>
+          <table className="table table-bordered" >
             <thead>
               <tr>
                 <th style={{fontWeight:500}} scope="col">Invoice Number</th>
                 <th style={{fontWeight:500}} scope="col">Invoice Date</th>
                 <th style={{fontWeight:500}} scope="col">Do Date</th>
-                <th style={{fontWeight:500}} scope="col">Sub Total</th>
-                <th style={{fontWeight:500}} scope="col">Tax</th>
-                <th style={{fontWeight:500}} scope="col">Total</th>
+                <th style={{fontWeight:500}} scope="col">Invoice Amount</th>
+                <th style={{fontWeight:500}} scope="col">Paid Amount</th>
+                <th style={{fontWeight:500}} scope="col">Balance</th>
                 <th style={{fontWeight:500,textAlign:"right"}} scope="col">Action</th>
               </tr>
             </thead>
@@ -277,8 +277,8 @@ class AccountingDetails extends React.Component<{locationNo:any,cus_no:any,load:
                 <td>$ {item.tax}</td>
                 <td>$ {item.total}</td>
                 <td style={{textAlign:"right"}}>
-                    <img data-toggle="tooltip" data-placement="top" title="view invoice" alt="eye" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.8rem'}} onClick={()=>this.invoice(item.invoice)} src={viewa}/>
-                    {<a data-toggle="tooltip" data-placement="top" title="invoice" href={`${baseURL}/api/customer/pdf/invoice/${this.props.cus_no}/${this.props.locationNo}/${item.invoice}/`} ><img alt="pdf1" style={{marginLeft:"1rem",cursor:"pointer",width:'1.563rem',height:'1.563rem'}} src={image}/></a>}
+                    <img data-toggle="tooltip" data-placement="top" title="view invoice" alt="eye" className="ml-1 icon" onClick={()=>this.invoice(item.invoice)} src={viewa}/>
+                    {<a data-toggle="tooltip" data-placement="top" title="invoice" href={`${baseURL}/api/customer/pdf/invoice/${this.props.cus_no}/${this.props.locationNo}/${item.invoice}/`} ><img alt="pdf1" className="ml-1 icon" src={image}/></a>}
                 </td>
               </tr>
               )})}

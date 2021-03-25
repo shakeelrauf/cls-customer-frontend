@@ -1,5 +1,5 @@
 import axios from 'axios';
-export const baseURL = "http://10.100.67.52:8000";
+export const baseURL = "http://localhost:8001";
 
 
 

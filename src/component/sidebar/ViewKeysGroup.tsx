@@ -48,7 +48,7 @@ interface Props{
   csvTable:any;
 }
 
-class ViewKeys extends React.Component<{},Props> {
+class ViewKeysGroup extends React.Component<{},Props> {
   toast: React.RefObject<any>;
 
   constructor(props:Props){
@@ -457,6 +457,4 @@ closeModal = () =>{
       );
     }
   }
-
-
-export default ViewKeys;  
+export default ViewKeysGroup;  

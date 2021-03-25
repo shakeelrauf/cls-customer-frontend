@@ -62,8 +62,15 @@ let Sidebarr =()=> {
                     <span className='linktext ml-2'>Request Service</span></NavLink>
               </li>
               <li className="nav-item text-start w-100">
-                { localStorage.getItem('key_finder')=== 'true'?<NavLink className="sidetext p-1 pl-4  nav-link" to="/home/viewkeys"><img className='sideicons' alt="sidebar" src={keys}/>
-                    <span className='linktext ml-2'>Manage Keys</span></NavLink> : <span className="sidetext p-1 pl-4  nav-link" style={{cursor:'not-allowed'}}><img className='sideicons' alt="sidebar" src={keys}/>
+                { localStorage.getItem('key_finder')=== 'true'?
+                  <>
+                    <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/viewkeys"><img className='sideicons' alt="sidebar" src={keys}/>
+                      <span className='linktext ml-2'>Manage Keys</span>
+                    </NavLink>
+                    <NavLink className="sidetext p-1 pl-4  nav-link" to="/home/viewkeysgroup"><img className='sideicons' alt="sidebar" src={keys}/>
+                      <span className='linktext ml-2'>Manage Keys Group</span>
+                    </NavLink>
+                  </> : <span className="sidetext p-1 pl-4  nav-link" style={{cursor:'not-allowed'}}><img className='sideicons' alt="sidebar" src={keys}/>
                     <span className='linktext ml-2'>Manage Keys</span></span>}
               </li>
               <li className="nav-item text-start w-100">

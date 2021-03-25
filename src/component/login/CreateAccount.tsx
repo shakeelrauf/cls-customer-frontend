@@ -50,6 +50,7 @@ let CreateAccount=()=>{
         let upperCaseLetters = /[A-Z]/g;
         let specialcharacter = /[!+@#\$%\^&\*]/g;
         let reWhiteSpace = new RegExp(/^\s+$/);
+        debugger
         if(formData.accountnumber === '' || formData.email === '' || formData.firstname === '' || formData.lastname === '' || formData.phonenumber === '' || formData.password === ''){
             if(node){
             node.show({severity: 'error', detail: "Please Enter all fields"});
@@ -183,8 +184,8 @@ let CreateAccount=()=>{
                             <button style={{width:"33.125rem",height:"2.5rem",backgroundColor:"#009ED6",borderColor:"#009ED6"}} className="btn btn-primary" type="submit">Create</button>
                         </div>
                         <div>
-                            <label style={{marginTop:"2.5rem",marginLeft:"8.125rem"}}>
-                               Already Have an Account?<span className="create" onClick={login} style={{marginLeft:".4rem",marginTop:"-2rem",fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
+                            <label className="mt-4 text-center">
+                              <span className="create" onClick={login} style={{marginLeft:".4rem",marginTop:"-2rem",fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
                                Log In 
                             </span>
                             </label>

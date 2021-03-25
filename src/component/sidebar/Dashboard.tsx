@@ -9,6 +9,7 @@ import CompanyDetails from "./CompanyDetails";
 import ManageUser from "./ManageUser";
 import UserInformation from "./UserInformation";
 import ViewKeys from "./ViewKeys";
+import ViewKeysGroup from "./ViewKeysGroup";
 import EditUserInformation from "./EditUserInformation";
 import ViewKeysD from "./ViewKeysDetails";
 import AddNewUser from "./AddNewUser";
@@ -37,6 +38,7 @@ const Dash = () => {
                                     <Route path='/home/quotations' component={Quotations} />
                                     <Route path='/home/servicerequest' component={ServiceRequest} />
                                     <Route path='/home/viewkeys' component={ViewKeys} />
+                                    <Route path='/home/viewkeysgroup' component={ViewKeysGroup} />
                                     <Route path='/home/auditreport' component={AuditReport} />
                                     <Route path='/home/manageuser' component={ManageUser} />
                                     <Route path='/home/edituserinformation' component={EditUserInformation} />

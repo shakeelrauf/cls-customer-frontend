@@ -68,8 +68,6 @@ let Login=()=> {
         let specialcharacter = /[!@#\$%\^&\*]/g;
         if(formData.password === ''){
             errorPassword = '* Please enter a password';
-        }else if(!(formData.password.trim().length >= 8 && formData.password.match(numbers) && formData.password.match(lowerCaseLetters) && formData.password.match(upperCaseLetters) && formData.password.match(specialcharacter))){
-            errorPassword = '* Please enter a valid password format';
             isValid = false;
         }
         setErrorEmail(errorEmail);

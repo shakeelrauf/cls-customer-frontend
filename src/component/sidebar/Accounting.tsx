@@ -326,7 +326,7 @@ class Accounting extends React.Component<{},Props> {
               return(
                 <>
                 <tr style={{height:"0px"}}>
-                    <td colSpan={4}>
+                    <td colSpan={6}>
                         <AccountingDetails load={this.load} loadt={this.loadt} locationNo={this.state.loc_no} cus_no={this.state.cus_no}/>
                      </td>
                 </tr>
@@ -605,44 +605,67 @@ class Accounting extends React.Component<{},Props> {
             <Modal style={this.invoiceStyles} isOpen={this.state.invoiceModalIsOpen} onRequestClose={this.closeModal}>{this.renderInvoiceModal()}</Modal>
             <Modal style={this.invoiceStyles} isOpen={this.state.allInvoiceModalIsOpen} onRequestClose={this.closeModal}>{this.renderAllInvoiceModal()}</Modal>
             <Toast ref={this.mytoast} />
-                <div className="upper" style={{height:"11.5rem"}}>
+                <div className="upper">
                     <div className="row" >
-                        <div className="col-4" style={{height:'7rem'}}>
-                            <p style={{padding:"20px"}}><span className='heading'>{this.state.last_name}</span> 
+                        <div className="col-4 d-flex align-items-center" >
+                            <p className="m-2"><span className='heading'>{this.state.last_name}</span> 
                             <br></br><span className='heading'>{this.state.cus_no}</span></p>
                         </div>
                         <div className="col-8">
-                            <div className="row"  style={{marginLeft:"-45px"}}>
-                                <div className="card" >
-                                    <div>
-                                        <p className="card-title">Account Balance</p>
-                                        <p className="card-text">${this.state.total_amount}</p>
-                                    </div>
-                                </div>
-                                <div className="card">
-                                        <p className="card-title">30 Days</p>
-                                        <p className="card-text">${this.state.over_30}</p>
-                                </div>
-                                <div className="card">
-                                        <p className="card-title">60 Days</p>
-                                        { (this.state.over_60<1)?<p className="card-text">${this.state.over_60}</p>:<p style={{color:'red'}} className="card-text">${this.state.over_60}</p>}
-                                </div>
-                                <div className="card">
-                                        <p className="card-title">90 Days</p>
-                                        { (this.state.over_90<1)?<p className="card-text">${this.state.over_90}</p>:<p style={{color:'red'}} className="card-text">${this.state.over_90}</p>}
-                                </div>
-                                <div className="cardbutton" style={{height:'3rem',cursor:'pointer',backgroundColor:"#009ED6",marginTop:'3.25rem'}} onClick={this.invoiceModalPayAll}>
-                                        <p style={{fontSize:'1.5rem',padding:'.3rem',color:'white'}} >Pay All</p>
-                                </div>
+                            <div className="row "  style={{marginLeft:"-45px"}}>
+                              <div className="col-md-12 flex-container">
+                                  <div className="flex-item ">
+                                    <div className="flex-item-inner">
+                                              <div className="card-front p-2 m-2 bg-violet">
+                                                  <h6>Account Balance</h6>
+                                                  <p className="detail">${this.state.total_amount}</p>
+                                              </div>
+                                            
+                                      </div>
+                                  </div>
+                                  <div className="flex-item ">
+                                    <div className="flex-item-inner">
+                                              <div className="card-front p-2 m-2 bg-magenta">
+                                                  <h6>30 Days</h6>
+                                                  <p className="detail">${this.state.over_30}</p>
+                                              </div>
+                                            
+                                      </div>
+                                  </div>
+                                  <div className="flex-item ">
+                                    <div className="flex-item-inner">
+                                              <div className="card-front p-2 m-2 bg-blue">
+                                                  <h6>60 Days</h6>
+                                                  <p className="detail">${this.state.over_60}</p>
+                                              </div>
+                                            
+                                      </div>
+                                  </div>
+                                  <div className="flex-item ">
+                                    <div className="flex-item-inner">
+                                              <div className="card-front p-2 m-2 bg-green">
+                                                  <h6>90 Days</h6>
+                                                  <p className="detail">${this.state.over_90}</p>
+                                              </div>
+                                      </div>
+                                  </div>
+                                  
+                                  <button className="btn btn-info" onClick={this.invoiceModalPayAll}>
+                                      Pay All
+                                  </button>
+                              </div>
                             </div>
                         </div>
-                        <div className="cardNet">
-                                        <p className="card-title">Terms</p>
-                                        <p className="card-text">{this.state.terms}</p>
-                                </div>
                     </div>
-
+                  
                 </div>
+                <div className="row">
+                    
+                    <div>
+                            <p className="card-title">Terms</p>
+                            <p>{this.state.terms}</p>
+                    </div>
+                  </div>
                 <div className="content">
                 <div className="accordian"> 
                     <div className="col-12">
@@ -656,44 +679,46 @@ class Accounting extends React.Component<{},Props> {
                         </div>
                     </div>
                 </div>
-                
-                <table className="table table-striped">
-                    <thead>
+                <div className="p-datatable p-component" data-scrollselectors=".p-datatable-scrollable-body, .p-datatable-unfrozen-view .p-datatable-scrollable-body">
+                <div className="p-datatable-wrapper">
+                  <table role="grid">
+                    <thead className="p-datatable-thead" >
                         <tr >
-                        <th style={{fontWeight:500}} scope="col">Location Name</th>
-                        <th style={{fontWeight:500}} scope="col">Address</th>
+                        <th style={{fontWeight:500}} scope="col" colSpan={2} >Location Name</th>
+                        <th style={{fontWeight:500}} scope="col" colSpan={2}>Address</th>
                         <th style={{fontWeight:500}} scope="col">Open Invoice</th>
                         <th style={{fontWeight:500,textAlign:"right"}} scope="col">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="p-datatable-tbody">
                        {this.state.tableData.map((item: any,i: any)=>{
                          return(
                              <>
                         <tr key={i} >
-                        <td>{item.location}</td>
-                        <td>{item.address}</td>
+                        <td colSpan={2}>{item.location}</td>
+                        <td colSpan={2}>{item.address}</td>
                          <td>$ {item.amount}</td>
                         <td style={{textAlign:"right"}}>
-                           <img data-toggle="tooltip" data-placement="top" title="view invoices" alt="eye" style={{marginLeft:"1rem",cursor:"pointer",height:'1.8rem',width:'1.8rem'}} onClick={(item.amount===0 || item.amount==='0.00')? this.noInvoice  : ()=>this.details(item.loc_no,i)} src={viewa} />
-                           <img data-toggle="tooltip" data-placement="top" title="pay invoices" alt="dollar" style={{marginLeft:"1rem",cursor:"pointer",height:'1.5rem',width:'1.5rem'}} src={dollar} onClick={(item.amount===0 || item.amount==='0.00')? this.noInvoice  : ()=>this.invoiceModal(item.loc_no,item.location,item.address)}/>
-                           <img data-toggle="tooltip" data-placement="top" title="Help" alt="question" style={{marginLeft:"1rem",cursor:"pointer",height:'1.5rem',width:'1.5rem'}} onClick={()=>this.invoiceQuery(item.location ,item.address,item.amount,item.loc_no)} src={question}/>
-                           <img data-toggle="tooltip" data-placement="top" title="Invoices details" alt="pdf1" style={{marginLeft:"1rem",cursor:"pointer",width:'1.5rem',height:'1.5rem'}} onClick={() => this.exportPDFsingleinvoices(item.location ,item.address,item.loc_no)} src={image}/>
+                           <img data-toggle="tooltip" data-placement="top" title="view invoices" alt="eye" className=" ml-1 icon"  onClick={(item.amount===0 || item.amount==='0.00')? this.noInvoice  : ()=>this.details(item.loc_no,i)} src={viewa} />
+                           <img data-toggle="tooltip" data-placement="top" title="pay invoices" alt="dollar" className=" ml-1 icon"  src={dollar} onClick={(item.amount===0 || item.amount==='0.00')? this.noInvoice  : ()=>this.invoiceModal(item.loc_no,item.location,item.address)}/>
+                           <img data-toggle="tooltip" data-placement="top" title="Help" alt="question" className=" ml-1 icon"  onClick={()=>this.invoiceQuery(item.location ,item.address,item.amount,item.loc_no)} src={question}/>
+                           <img data-toggle="tooltip" data-placement="top" title="Invoices details" className=" ml-1 icon" alt="pdf1" onClick={() => this.exportPDFsingleinvoices(item.location ,item.address,item.loc_no)} src={image}/>
                         </td>
                         </tr>                                                                                                                                 
                         {this.renderEditForm(item.showDetails,i)}
                         </>
                          )})}
-                          <tr>
-                            <td colSpan={10}>
-                            <Paginator first={this.state.offset} rows={this.state.perPage} totalRecords={this.state.totalRecords} rowsPerPageOptions={[10,20,30]} 
-                            template="RowsPerPageDropdown CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
-                            onPageChange={this.onPageChange}></Paginator>
-                            </td>
-                        </tr>
+                            
                     </tbody>
                 </table>
-                
+                </div>
+                </div>
+
+                <Paginator 
+                  template="RowsPerPageDropdown CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
+                  first={this.state.offset} rows={this.state.perPage} totalRecords={this.state.totalRecords} rowsPerPageOptions={[10,20,30]} 
+                            onPageChange={this.onPageChange}
+                  ></Paginator>
                 </div>
             </div>
             </>
