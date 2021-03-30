@@ -204,7 +204,15 @@ class ViewKeysDetails extends React.Component<{viewdata:any,load:any,loadc:any},
                 <td style={{margin:0,width:"7.65rem"}}>{item.editData ? <input style={{height:'2rem',width:"7.65rem",padding:'.5rem',margin:0}} type="text" className="form-control" name="phone" value={this.state.phone} onChange={this.handleInputChange}   /> : item.phone}</td>
                 <td style={{margin:0,width:"7.65rem"}}>{item.editData ? <input style={{height:'2rem',width:"7.65rem",padding:'.5rem',margin:0}} type="text" className="form-control" name="email" value={this.state.email} onChange={this.handleInputChange}  /> : item.email}</td>
                 <td style={{margin:0,width:"7.65rem"}}>{item.editData ? <Calendar style={{height:'2rem',width:"7.65rem",padding:0,margin:0}} id="date_issued" placeholder="YYYY-MM-DD" value={this.state.date_issued} onChange={(e:any) => this.setState({date_issued:e.value.toLocaleDateString("fr-CA")})}/> : item.date_issued}</td>
-                <td style={{textAlign:"center",margin:0,width:"6.65rem"}}>{item.editData ? <span><img style={{cursor:"pointer",width:"0.75rem",height:"0.75rem",marginRight:"1.25rem"}} onClick={()=>this.onCancel(i)} alt="cross" src={cross} /><img style={{cursor:"pointer",width:"1rem",height:"1rem"}} onClick={(e)=>this.onUpdate(e,item.id)} alt="tick" src={tick} /></span>: <span> <img style={{cursor:"pointer",width:'1.3rem'}} onClick={()=>this.onEdit(i)} alt="edit" src={edit1} /></span>}</td>
+
+                <td style={{textAlign:"center",margin:0,width:"6.65rem"}}>
+                  { 
+                    item.group ? <></> 
+                    :
+                    item.editData ? <span><img style={{cursor:"pointer",width:"0.75rem",height:"0.75rem",marginRight:"1.25rem"}} onClick={()=>this.onCancel(i)} alt="cross" src={cross} /><img style={{cursor:"pointer",width:"1rem",height:"1rem"}} onClick={(e)=>this.onUpdate(e,item.id)} alt="tick" src={tick} /></span>
+                  : <span> <img style={{cursor:"pointer",width:'1.3rem'}} onClick={()=>this.onEdit(i)} alt="edit" src={edit1} /></span>
+                  }
+                </td>
                 <td style={{margin:0,textAlign:"right",width:'6rem'}}>
                    <input style={{height:"1.375rem",width:"1.375rem", borderRadius:".25em",display:"inline-block",position:"initial",cursor:'pointer',marginLeft:'-2rem'}}  type="checkbox" className="form-check-input" name="lost_key" defaultChecked={item.lost_key} onChange={(e)=>this.handleCheckboxSlider(e,item,i)}/>
                    <img alt="viewkeys" style={{marginLeft:"0.6rem",width:'0.4rem'}} src={questionmark}/>

@@ -1,5 +1,5 @@
 import React from 'react';
-import ViewKeysDetails from './ViewKeysDetails';
+import ViewKeysGroupDetails from './ViewKeysGroupDetails';
 import image from '../icons/pdf-1.svg';
 import csv from '../icons/csv.svg';
 import schedule from '../icons/schedule.svg';
@@ -7,20 +7,33 @@ import warning from '../icons/warning.svg';
 import brokenkey from '../icons/BrokenKey.svg';
 import questionmark from '../icons/questionmark.svg';
 import csv1 from '../icons/csv1.svg';
-import shopping from '../icons/shoppingcart.svg';
+import removeIcon from '../icons/remove.png';
 import axiosInstance , {baseURL} from '../../api/api';
-import  jsPDF from "jspdf";
 import 'jspdf-autotable';
 import cancel from '../icons/cancel.svg';
-import { autoTable } from 'jspdf-autotable';
-import { CSVLink } from "react-csv";
 import { Paginator } from 'primereact/paginator';
-import Select from "react-select";
 import FadeLoader from "react-spinners/FadeLoader";
 import { css } from "@emotion/core";
 import Modal from 'react-modal';
-import KeyRequest from './KeyRequest';
 import { Toast } from 'primereact/toast';
+import Select from "react-select";
+import { Formik } from 'formik';
+import { Calendar } from 'primereact/calendar';
+import edit1 from '../icons/edit.svg';
+
+
+const customStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-20%',
+    transform             : 'translate(-50%, -50%)',
+    height: '30rem',
+    overflow: 'inherit !important'
+  }
+};
 
 const override = css`
   margin: 0 auto;
@@ -45,7 +58,12 @@ interface Props{
   modalIsOpen : boolean;
   door_compromised:any;
   currentItem: any;
+  add_group: any;
   csvTable:any;
+  keys: any[];
+  freeKeys: any[];
+  selectedId: any;
+  initialValues: any;
 }
 
 class ViewKeysGroup extends React.Component<{},Props> {
@@ -64,122 +82,91 @@ class ViewKeysGroup extends React.Component<{},Props> {
       currentuser:[],
       isSelected: '',
       file:[] as any,
+      add_group: true,
       files:[] as any,
       loading : false,
       modalIsOpen:false,
       door_compromised:'',
+      keys: [],
+      freeKeys:[],
       currentItem: '',
       limit:10,
       offset: null,
-      totalRecords:null
-    }}
-    
-    customStyles = {
-      content : {
-        top                   : '50%',
-        left                  : '50%',
-        right                 : 'auto',
-        bottom                : 'auto',
-        marginRight           : '-20%',
-        transform             : 'translate(-50%, -50%)',
-        width                 : '50rem',
-        height                : '37.5rem'
-      }
-    };
-
-    /* exportPDF = async() => {
-
-      try {
-        this.setState({loading : true});
-        const api = `kdfinder/keys/all/?file_number=${this.state.isSelected}`;
-        let response = await axiosInstance.get(api , { headers: {'Content-Type': 'application/json'} } );
-      const unit = "pt";
-      const size = "A4"; // Use A1, A2, A3 or A4
-      const orientation = "portrait"; // portrait or landscape
-      const marginLeft = 40;
-      const doc = new jsPDF(orientation, unit, size);
-      doc.setFontSize(15);
-  
-      const title = "View Keys";
-      const headers = [["Key ID Stamp", "Key Description","QTY Cut"]];
-      const data = response.data.data.map((item:any)=> [item.key_id, item.key_description,item.quantity]);
-  
-      let content = {
-        startY: 50,
-        head: headers,
-        body: data
-      };
-      doc.text(title, marginLeft, 40);
-      (doc as jsPDF & { autoTable: autoTable }).autoTable (content);
-      doc.save("report.pdf");
-      this.setState({loading : false});
-    }catch(error){
-      this.setState({loading : false});
-        throw error;
+      initialValues: {name: '',user: '',keys: [],issueDate: new Date()},
+      totalRecords:null,
+      selectedId:null
     }
-    }; */
-
-
-    /* exportPDFsequence = (sequence:any) => {
-      const unit = "pt";
-      const size = "A4"; // Use A1, A2, A3 or A4
-      const orientation = "portrait"; // portrait or landscape
-      const marginLeft = 40;
-      const doc = new jsPDF(orientation, unit, size);
-      doc.setFontSize(15);
+  }
   
-      const title = "View Keys";
-      const headers = [["Key ID Stamp", "Tenant","First/Last Name","Phone","Email ID","Issue Date"]];
-      const data = sequence.map((item:any)=> [item.key_id, item.tenant_location, item.key_holder, item.phone, item.email, item.date_issued]);
-  
-      let content = {
-        startY: 50,
-        head: headers,
-        body: data
-      };
-      doc.text(title, marginLeft, 40);
-      (doc as jsPDF & { autoTable: autoTable }).autoTable (content);
-      doc.save("sequence.pdf");
-    }; */
-    fetchedData= async(offset:any,limit:any,fn:any) => {
-      try {
-        this.setState({loading : true});
-        const api = `/api/kdfinder/keys/?file_number=${fn}&limit=${limit}&offset=${offset}`;
-        let response = await axiosInstance.get(api , { headers: {'Content-Type': 'application/json'} } );
-        this.setState({data:response.data.results.data.map((obj:any)=>{
-          return({...obj, showDetails: false
-          })
-        })});
-        if(!(this.state.data.length === 0))
-                {
-                    this.setState({loading : false});
-                }else {
-                  this.setState({loading : false});
-                  this.toast.current.show({severity: 'error',  detail: 'No record found'});
-                }
-        this.setState({currentuser:response.data.results.current_user});
-        this.setState({totalRecords:response.data.count});
-        this.setState({files: response.data.results.file_numbers })
-        this.setState({file:response.data.results.file_numbers.map((item: any)=>{ 
-          return (
-          { label: item.system_name, value: item.id}
-          )
-        })});
-        if(this.state.isSelected===''){
-          this.setState({isSelected:response.data.results.selected});
-        }
-        return this.state.data;
-    }catch(error){
-      this.setState({loading : false});
-        throw error;
+  customStyles = {
+    content : {
+      top                   : '50%',
+      left                  : '50%',
+      right                 : 'auto',
+      bottom                : 'auto',
+      marginRight           : '-20%',
+      transform             : 'translate(-50%, -50%)',
+      height: '30rem',
+      overflow: 'inherit !important',
     }
-    }
+  };
 
     
+  fetchedData= async(offset:any,limit:any) => {
+    this.setState({loading : true});
+    const api = `/api/kdfinder/keysgroups`;
+    let response = await axiosInstance.get(api , { headers: {'Content-Type': 'application/json'} } );
+    this.setState({data:response.data.results.data.map((obj:any)=>{
+      return({...obj, showDetails: false
+      })
+    })});
+    this.setState({keys:response.data.results.keys.map((obj:any)=>{
+      return({
+        label: obj.key_id +" - "+ obj.sequence,
+        value: obj.id
+      })
+    })});
+    this.setState({freeKeys: this.state.keys})
+    if(!(this.state.data.length === 0))
+    {
+        this.setState({loading : false});
+    }else {
+      this.setState({loading : false});
+      this.toast.current.show({severity: 'error',  detail: 'No record found'});
+    }
+    this.setState({currentuser:response.data.results.current_user});
+    this.setState({totalRecords:response.data.count});
+    return this.state.data;
+  }
+
+  renderEditForm=(show:any,id:any)=>{
+    if(show){
+      return(
+        <>
+          <tr style={{height:"0px"}}>
+              <td colSpan={4}>
+              <div className="accordian"> 
+                    <div className="col-12">
+                        <div className="row">
+                            <div className="col-6">
+                                <p style={{color:"#fff",textAlign:"left",marginTop:"10px"}}>Key Holder Informations</p>
+                            </div>
+                            <div className="col-6">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <ViewKeysGroupDetails loadc={this.loadc} load={this.load} viewdata={this.state.view}/>
+              </td>
+          </tr>
+       </>
+      )
+    }
+  }    
 
   componentDidMount = () =>{
-       this.fetchedData(null,null,'all');
-    }
+    this.fetchedData(null,null);
+  }
 
   details=(item:any,id1:any)=> {
     //this.setState({loading:true});
@@ -190,11 +177,10 @@ class ViewKeysGroup extends React.Component<{},Props> {
         obj.showDetails = false;
       }
       return {...obj}
-      });
-   this.setState({data:updatedData});
-   this.setState({edit:true});
-   this.setState({view:item.sequence, currentItem: item});
-   this.setState({door_compromised: item.door_compromised});
+    });
+    this.setState({data:updatedData});
+    this.setState({edit:true});
+    this.setState({view:item.sequence, currentItem: item});
   }
 
   colourStyles ={
@@ -214,141 +200,14 @@ class ViewKeysGroup extends React.Component<{},Props> {
     }),
   }
    
-  handleChange = (e:any) => {
-    var item = this.state.files.find((i: any)=> i.id == e.value)
-    this.fetchedData(null,null,item.file_number);
-    this.setState({isSelected:item});
-  }
 
-  cancel(id:any) {
-    const updatedData = this.state.data.map((obj:any,i:number)=>{
-        if(i===id){
-          obj.showDetails = false;
-        }
-        return {...obj}
-    })
-    this.setState({data: updatedData,edit:false});
-    this.fetchedData(null,null,'all');
-   }
-
-   load = ()=>{
+  load = ()=>{
     this.setState({loading:false});
-   }
+  }
    
-   loadc = ()=>{
+  loadc = ()=>{
     this.setState({loading:true});
-   }
-  renderEditForm=(show:any,id:any)=>{
-    if(show){
-      return(
-        <>
-          <tr style={{height:"0px"}}>
-              <td colSpan={4}>
-              <div className="accordian"> 
-                    <div className="col-12">
-                        <div className="row">
-                            <div className="col-6">
-                                <p style={{color:"#fff",textAlign:"left",marginTop:"10px"}}>Key Holder Informations</p>
-                            </div>
-                            <div className="col-6">
-                                    <span className="detail-created" onClick={()=>this.cancel(id)} >Close</span>
-                                </div>
-                        </div>
-                    </div>
-                </div>
-                <ViewKeysDetails loadc={this.loadc} load={this.load} viewdata={this.state.view}/>
-              </td>
-          </tr>
-       </>
-      )
-    }
-  }   
-
-  renderEdit=()=>{
-    if(this.state.edit){
-      return(
-        <>
-       <div className="row">
-          <div className="col-2" >
-
-            { 
-              this.state.door_compromised > 0 ?
-                 <> <img alt="warning" src={warning}/><br></br><span>{this.state.door_compromised} Door Compromised</span></>
-              : ''
-            }
-            </div>
-
-            <div className="col-10">
-              <button style={{marginTop:"1.25rem",marginLeft:"0.938rem", height:"3.875rem",width:"9.063rem"}}  type="button" className="btn btn-outline-info"><img style={{marginTop:"0.438rem",marginRight:"0.5rem",width:'32%'}} alt="schedule" src={schedule}/>Schedule<span style={{marginTop:"-1.125rem",marginRight:"-2.25rem",display:"block"}}> Service</span></button>
-              <a href={`${baseURL}/api/kdfinder/csv/key-qty/${this.state.currentuser.id}/${this.state.isSelected.file_number}/`} style={{marginTop:"1.25rem",marginLeft:"0.938rem",height:"3.875rem",width:"10.25rem"}} 
-                    className="btn btn-outline-success">
-                    <img style={{marginTop:"0.438rem",marginRight:"0.5rem",marginLeft:"-.25rem",width:'20%'}} alt="csv" src={csv}/>
-                    Export System <span style={{marginTop:"-1.125rem",marginRight:"2.25rem",display:"block"}}>CSV </span>
-              </a>
-              <a href={`${baseURL}/api/kdfinder/pdf/key-qty/${this.state.currentuser.id}/${this.state.isSelected.file_number}/`} style={{marginTop:"1.25rem",marginLeft:"0.938rem",marginRight:"-3.125rem",height:"3.875rem",width:"11.813rem"}} type="button" className="btn btn-outline-danger"><img style={{marginTop:"0.438rem",marginRight:"1px",marginLeft:"-1px",width:'17%'}} alt="pdf" src={image}/> Download System<span style={{marginTop:"-1.125rem",marginRight:"3.875rem",display:"block"}}> PDF</span></a>                   
-            </div>
-          <div className="col-md-12 aling-items-end justify-content-end d-flex mt-2">
-            {this.renderkeys()}
-          </div>
-        </div>
-       </>
-      )
-    }else{
-      return(
-        <>
-        <div className="row">
-          <div className="col-2">
-
-          </div>
-          <div className="col-10">
-              <button style={{marginTop:"1.25rem",marginLeft:"0.938rem", height:"3.875rem",width:"9.063rem"}}  type="button" className="btn btn-outline-info"><img style={{marginTop:"0.438rem",marginRight:"0.5rem",width:'32%'}} alt="schedule" src={schedule}/>Schedule<span style={{marginTop:"-1.125rem",marginRight:"-2.25rem",display:"block"}}> Service</span></button>
-              <a href={`${baseURL}/api/kdfinder/csv/key-qty/${this.state.currentuser.id}/${this.state.isSelected.file_number}/`} style={{marginTop:"1.25rem",marginLeft:"0.938rem",height:"3.875rem",width:"10.25rem"}} 
-                    className="btn btn-outline-success">
-                    <img style={{marginTop:"0.438rem",marginRight:"0.5rem",marginLeft:"-.25rem",width:'20%'}} alt="csv" src={csv}/>
-                    Export System <span style={{marginTop:"-1.125rem",marginRight:"2.25rem",display:"block"}}>CSV </span>
-              </a>
-              <a href={`${baseURL}/api/kdfinder/pdf/key-qty/${this.state.currentuser.id}/${this.state.isSelected.file_number}/`} style={{marginTop:"1.25rem",marginLeft:"0.938rem",marginRight:"-3.125rem",height:"3.875rem",width:"11.813rem"}} type="button" className="btn btn-outline-danger"><img style={{marginTop:"0.438rem",marginRight:"1px",marginLeft:"-1px",width:'17%'}} alt="pdf" src={image}/> Download System<span style={{marginTop:"-1.125rem",marginRight:"3.875rem",display:"block"}}> PDF</span></a>                   
-            
-          </div>
-          <div className="col-12 aling-items-end justify-content-end d-flex mt-2" >
-            <div className="col-"></div>
-            <div className="col-4">
-                <Select
-                    values={this.state.isSelected.file_number}
-                    onChange={this.handleChange }
-                    className="dropdown"
-                    options={this.state.file}
-                    placeholder={this.state.isSelected.system_name}
-                    styles={this.colourStyles}
-                    isSearchable
-                />
-            </div>
-          </div>
-        </div>
-        </>
-      )
-    }
-  }   
-
-  
-
-  renderkeys=()=>{
-    if(this.state.edit){
-      return(
-        <>
-       <div >
-              <img alt="broken" style={{width:'1rem'}} src={brokenkey}/><span style={{marginLeft:"0.75rem",color:"#0D93C9"}}>Broken key</span>
-              <img alt="questionmark" style={{marginLeft:"1rem",width:'0.6rem'}} src={questionmark}/><span style={{marginLeft:"0.75rem",marginRight:"2.5rem",color:"#FF6B6B"}}>Key Lost</span>
-        </div>
-       </>
-      )
-    }else{
-      return(
-        <>
-        </>
-      )
-    }
-  }   
+  }  
 
   modal = () =>{
     this.setState({modalIsOpen:false});
@@ -357,103 +216,250 @@ class ViewKeysGroup extends React.Component<{},Props> {
   addToast=(mes:any)=>{
     this.toast.current.show({severity: 'success', detail: mes});
   }
+  
   changeModal = () =>{
     this.setState({modalIsOpen:false});
   }
 
-  renderModal = () =>{
-    return( 
-      <>
-      <div style={{textAlign:'right'}}>
-                  <img alt="cancel" style={{width:'1.875rem',cursor:'pointer'}} onClick={this.closeModal} src={cancel}/>
+  submit = async(values: any, id:any=null) => {
+    var api = `/api/kdfinder/keysgroups/`;
+    if(id){
+      api = api + "group/" + id
+    }
+    let response = await axiosInstance.post(api ,values, { headers: {'Content-Type': 'application/json'} } );
+    if(response.data.success){
+      this.changeModal()
+      this.addToast("Successfuly added group")
+      this.fetchedData(null,null)
+    }        
+  }
+
+
+  renderModal = (id:any,initialValues:any) =>{ 
+    return(
+        <>
+        <div>
+        <div style={{textAlign:'right'}} >
+           <img alt="cancel" style={{width:'1.875rem',cursor:'pointer'}} onClick={this.closeModal} src={cancel}/>
+        </div>
+        <Formik
+          initialValues={initialValues}
+          validate={values => {
+            var errors: any = {}
+            if (!values.name) {
+              errors['name'] = 'Required';
+            }
+            if (!values.user) {
+              errors['user'] = 'Required';
+            }
+            if (!values.keys) {
+              errors['keys'] = 'Required';
+            }
+            if (!values.issueDate) {
+              errors['issueDate'] = 'Required';
+            }
+            return errors;
+          }}
+          onSubmit={(values, { setSubmitting }) => {
+            this.submit(values, id)
+            console.log(values)
+            setSubmitting(false);
+          }}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting,
+            setFieldValue
+            /* and other goodies */
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <div className="row">
+                <div className="form-group col-6">
+                  <label>Group Name</label>
+                  <input type="text" name="name" 
+                      className="form-control"
+                      placeholder="Enter group name"
+                      onChange={handleChange}
+                      value={values.name}
+                    />
+                  <small id="locationHelp" className="form-text text-muted text-danger">{errors.name}</small>
                 </div>
-    <KeyRequest modal={this.modal}  addtoast={this.addToast} />
-    </>
+                <div className="form-group col-6">
+                  <label>Issue Date</label>
+                  <Calendar id="basic" placeholder="DD/MM/YYYY " 
+								 name="issueDate" style={{width: '100px'}} value={values.issueDate} className="w-100" onChange={(e:any) => setFieldValue("issueDate",e.value.toLocaleDateString("fr-CA"))}   showIcon/>
+                  <small id="addressHelp" className="form-text text-muted text-danger">{errors.issueDate}</small>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Keys</label>
+                <Select
+                    values={values.keys}
+                    className="dropdown"
+                    onChange={(opt, e) => {
+                      setFieldValue("keys",opt?.map(obj => {
+                        return obj.value
+                      }))
+                    }}
+                    options={this.state.keys}
+                    placeholder={'Please select keys'}
+                    styles={this.colourStyles}
+                    isMulti
+
+                />
+                <small id="addressHelp" className="form-text text-muted text-danger">{errors.keys}</small>
+              </div>
+              <div className="form-group">
+                <label>User</label>
+                <input type="text" name="user" 
+                    className="form-control"
+                    placeholder="Enter user"
+                    onChange={handleChange}
+                    value={values.user}
+                  />
+                <small id="addressHelp" className="form-text text-muted text-danger">{errors.user}</small>
+              </div>
+              <button type="submit" className="btn btn-primary w-100" disabled={errors.user != undefined || errors.name != undefined || errors.keys != undefined || errors.issueDate != undefined}>
+                Save 
+              </button>
+            </form>
+          )}
+        </Formik>
+        </div>
+        </>
     )
   }
 
-  request = () => {
+  openModal = () => {
     this.setState({modalIsOpen:true});
   }
 
   onPageChange = (event:any) => {
-
     this.setState({offset:event.first,limit:event.rows});
-    this.fetchedData(event.first,event.rows,this.state.isSelected.file_number);
-}
+    this.fetchedData(event.first,event.rows);
+  }
+  
+  handleNewGroup = () => {
+    var issueDate = new Date()
+    var initialValues = {name: '', user: '',issueDate: issueDate, keys: []}
+    this.setState({selectedId: null})
+    this.setState({initialValues: initialValues})
+    this.setState({keys: this.state.freeKeys})
+    this.openModal()
+  }
 
-closeModal = () =>{
-  this.setState({modalIsOpen:false});
-}
+  closeModal = () =>{
+    this.setState({modalIsOpen:false});
+  }
   
-  
+  deleteGroup = async (id:any) => {
+    const api = `/api/kdfinder/keysgroups/`;
+    if (window.confirm('Do you want to delete this group?')) {
+      let response = await axiosInstance.delete(api , { data: {id: id},headers: {'Content-Type': 'application/json'} } );
+      if(response.data.success){
+        this.changeModal()
+        this.addToast("Successfuly removed group")
+        this.fetchedData(null,null)
+      }  
+      console.log('Thing was saved to the database.');
+    } 
+  }
+
+  editGroup = async (id:any) => {
+    var obj = this.state.data.filter((obj: any) => {
+      return obj.id == id
+    });
+    if (obj.length > 0) {
+      var user;
+      var keys:any[] = [];
+      var keyValues:any[] = [];
+      obj[0].sequence.map((item: any) => {
+        user = item.key_holder
+        keys.push({
+          label: item.key_id +" - "+ item.sequence,
+          value: item.id
+        })
+        keyValues.push(item.id)
+      });
+      var name = obj[0].name
+      var issueDate = new Date(obj[0].issue_date)
+      var initialValues = {name: name, user: user,issueDate: issueDate, keys: keyValues}
+      this.setState({selectedId: id})
+      this.setState({initialValues: initialValues})
+      this.state.freeKeys.forEach(key => {
+        keys.push(key)
+      })
+      this.setState({keys: keys});
+      this.openModal()
+    }
+  }
+
   render(){
-    
-  const lastLoginDate  = this.state.currentuser.last_login? new Date(this.state.currentuser.last_login).toLocaleDateString(): '';
-  const lastUpdatedDate = this.state.currentuser.last_modified? new Date(this.state.currentuser.last_modified).toLocaleDateString(): "";
+    const lastLoginDate  = this.state.currentuser.last_login? new Date(this.state.currentuser.last_login).toLocaleDateString(): '';
+    const lastUpdatedDate = this.state.currentuser.last_modified? new Date(this.state.currentuser.last_modified).toLocaleDateString(): "";
+    return (
+      <>
+        <div>
+            <Modal style={customStyles} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>{this.renderModal(this.state.selectedId,this.state.initialValues)}</Modal>
+            <div>
+            {
+              this.state.loading  ? <div className='overlay-box1'>
+              <FadeLoader css={override} color={"rgb(0, 158, 214)"} loading={this.state.loading}  height={30} width={5} radius={2} margin={20} />
+          </div> :''
+            }
+            <Toast ref={this.toast} />
+              <div className="upper1" >
+                <div className="row col-md-12">
+                    <div  className="col-6">
+                        <p><span style={{color:"#009DD0",fontSize:"1.5rem"}}><span style={{fontWeight:"bold", marginRight:".6rem"}}>Welcome</span>{this.state.currentuser.first_name} {this.state.currentuser.last_name}</span></p>
+                        <p> Your last log in was on :  <strong>{lastLoginDate}</strong></p>
+                        <p>Last Updated:  <strong>{lastUpdatedDate}</strong></p>
+                    </div> 
+                    <div className="col-6 align-items-end justify-content-end d-flex">
+                      <button onClick={this.handleNewGroup} style={this.state.add_group ? {fontWeight:"lighter"}: {visibility:"hidden"}} className="btn btn-outline-danger">+Add New Group</button>
+                    </div>
+                </div>
+              </div>
+              <div className="content" >
+            <table className="table" style={{backgroundColor:"#fff"}}>
+              <thead style={{ color: "#fff",backgroundColor:"#12739A" }}>
+                <tr>
+                  <th data-visible="true" >Group Name</th>
+                  <th>Issue Date</th>
+                  <th style={{textAlign:"right"}}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+              {this.state.data.map((item: any,i: any)=>{
+              return(
+                <>
+                <tr key={i}>
+                  <td><span onClick={()=>this.details(item,i)} style={{cursor:"pointer",color:"#009ED6",textDecoration:"underline"}}>{item.name}</span></td>
+                  <td>{(new Date(item.issue_date)).toLocaleDateString("fr-CA")}</td>
+                  <td style={{textAlign:"right"}}>
+                    <img alt="viewkeys" style={{marginLeft:"0.6rem",width:'0.8rem'}} src={edit1} onClick={() => this.editGroup(item.id)}/>
 
-      return (
-        <>
-          <div>
-          {
-            this.state.loading  ? <div className='overlay-box1'>
-            <FadeLoader css={override} color={"rgb(0, 158, 214)"} loading={this.state.loading}  height={30} width={5} radius={2} margin={20} />
-        </div> :''
-          }
-          <Toast ref={this.toast} />
-                <Modal style={this.customStyles} isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>{this.renderModal()}</Modal>
-            <div className="upper1" >
-              <div className="row col-md-12">
-                  <div  className="col-4">
-                      <p><span style={{color:"#009DD0",fontSize:"1.5rem"}}><span style={{fontWeight:"bold", marginRight:".6rem"}}>Welcome</span>{this.state.currentuser.first_name} {this.state.currentuser.last_name}</span></p>
-                      <p> Your last log in was on :  <strong>{lastLoginDate}</strong></p>
-                      <p>Last Updated:  <strong>{lastUpdatedDate}</strong></p>
-                  </div>   
-                  <div className="col-8" >
-                    {this.renderEdit()}
+                    <img alt="delete" style={{marginLeft:"0.938rem",cursor:"pointer",width:'0.8rem'}} onClick={() =>this.deleteGroup(item.id)} src={removeIcon}/>
+                  </td>
+                </tr>
+                {this.renderEditForm(item.showDetails,item.id)}
+                </>
+                )})}
+              </tbody>
+              </table>
+              <Paginator first={this.state.offset} rows={this.state.limit} totalRecords={this.state.totalRecords} rowsPerPageOptions={[10, 20, 30]} 
+                    template="RowsPerPageDropdown CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
+                    onPageChange={this.onPageChange}></Paginator>
                     
-                  </div> 
               </div>
             </div>
-            <div className="content" >
-          <table className="table" style={{backgroundColor:"#fff"}}>
-            <thead style={{ color: "#fff",backgroundColor:"#12739A" }}>
-              <tr>
-                <th data-visible="true" >Key ID Stamp</th>
-                <th>Key Description</th>
-                <th>QTY Cut</th>
-                <th style={{textAlign:"right"}}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-            {this.state.data.map((item: any,i: any)=>{
-             return(
-               <>
-              <tr key={i}>
-                <td><span onClick={()=>this.details(item,i)} style={{cursor:"pointer",color:"#009ED6",textDecoration:"underline"}}>{item.key_id}</span></td>
-                <td>{item.key_description}</td>
-                <td>{item.quantity}</td>
-                <td style={{textAlign:"right"}}>
-                  <img alt="keyrequest" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.5rem'}} onClick={this.request} src={shopping}/>
-                  {<a href={`${baseURL}/api/kdfinder/csv/key-sequence/${this.state.currentuser.id}/${this.state.isSelected.file_number}/${item.id}/`} ><img alt="csv1" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.3rem'}} src={csv1}/></a>}
-                  {<a href={`${baseURL}/api/kdfinder/pdf/key-sequence/${this.state.currentuser.id}/${this.state.isSelected.file_number}/${item.id}/`} ><img alt="pdf1" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.3rem'}} src={image}/></a>}
-
-                </td>
-              </tr>
-             
-                   {this.renderEditForm(item.showDetails,i)}
-                
-              </>
-              )})}
-            </tbody>
-            </table>
-            <Paginator first={this.state.offset} rows={this.state.limit} totalRecords={this.state.totalRecords} rowsPerPageOptions={[10, 20, 30]} 
-                  template="RowsPerPageDropdown CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
-                  onPageChange={this.onPageChange}></Paginator>
-                  
             </div>
-          </div>
-        </>
+          </>
       );
     }
   }

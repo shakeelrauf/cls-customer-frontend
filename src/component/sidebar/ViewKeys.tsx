@@ -166,7 +166,6 @@ class ViewKeys extends React.Component<{},Props> {
           )
         })});
         if(this.state.isSelected===''){
-          this.setState({isSelected:response.data.results.selected});
         }
         return this.state.data;
     }catch(error){
