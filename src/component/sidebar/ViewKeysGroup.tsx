@@ -17,10 +17,11 @@ import { css } from "@emotion/core";
 import Modal from 'react-modal';
 import { Toast } from 'primereact/toast';
 import Select from "react-select";
-import { Formik } from 'formik';
+import { Formik, validateYupSchema } from 'formik';
 import { Calendar } from 'primereact/calendar';
 import edit1 from '../icons/edit.svg';
 
+import AsyncSelect from 'react-select/async';
 
 const customStyles = {
   content : {
@@ -112,7 +113,7 @@ class ViewKeysGroup extends React.Component<{},Props> {
   };
 
     
-  fetchedData= async(offset:any,limit:any) => {
+  fetchedData = async(offset:any,limit:any) => {
     this.setState({loading : true});
     const api = `/api/kdfinder/keysgroups`;
     let response = await axiosInstance.get(api , { headers: {'Content-Type': 'application/json'} } );
@@ -120,13 +121,6 @@ class ViewKeysGroup extends React.Component<{},Props> {
       return({...obj, showDetails: false
       })
     })});
-    this.setState({keys:response.data.results.keys.map((obj:any)=>{
-      return({
-        label: obj.key_id +" - "+ obj.sequence,
-        value: obj.id
-      })
-    })});
-    this.setState({freeKeys: this.state.keys})
     if(!(this.state.data.length === 0))
     {
         this.setState({loading : false});
@@ -221,11 +215,21 @@ class ViewKeysGroup extends React.Component<{},Props> {
     this.setState({modalIsOpen:false});
   }
 
+  filteOptions = () => {
+
+  }
+
+  promiseOptions = (inputValue: any) =>{
+    new Promise(resolve => {
+        resolve(this.state.keys);
+    });
+  }
   submit = async(values: any, id:any=null) => {
     var api = `/api/kdfinder/keysgroups/`;
     if(id){
       api = api + "group/" + id
     }
+    values.keys  = values.keys.map((obj:any)=> obj.value)
     let response = await axiosInstance.post(api ,values, { headers: {'Content-Type': 'application/json'} } );
     if(response.data.success){
       this.changeModal()
@@ -234,6 +238,15 @@ class ViewKeysGroup extends React.Component<{},Props> {
     }        
   }
 
+  loadOptions = async(input: any) => {
+    const api = `/api/kdfinder/keysjson?keyCode=${input}`;
+    let response:any = await axiosInstance.get(api , { headers: {'Content-Type': 'application/json'} } );
+    var values =  response.data.data.map((obj: any) => {
+      return{label: obj.name, value: obj.id}
+    })
+    debugger
+    return values;
+  }
 
   renderModal = (id:any,initialValues:any) =>{ 
     return(
@@ -298,19 +311,19 @@ class ViewKeysGroup extends React.Component<{},Props> {
               </div>
               <div className="form-group">
                 <label>Keys</label>
-                <Select
-                    values={values.keys}
-                    className="dropdown"
-                    onChange={(opt, e) => {
-                      setFieldValue("keys",opt?.map(obj => {
-                        return obj.value
-                      }))
-                    }}
-                    options={this.state.keys}
-                    placeholder={'Please select keys'}
-                    styles={this.colourStyles}
-                    isMulti
+                <AsyncSelect
+                  cacheOptions
+                  defaultOptions
+                  placeholder={'Please select keys'}
 
+                  value={values.keys}
+                  getOptionLabel={e => e.label}
+                  getOptionValue={e => e.value}
+                  loadOptions={this.loadOptions}
+                  onChange={(opt, e) => {
+                    setFieldValue("keys",opt)
+                  }}
+                  isMulti
                 />
                 <small id="addressHelp" className="form-text text-muted text-danger">{errors.keys}</small>
               </div>
@@ -381,10 +394,13 @@ class ViewKeysGroup extends React.Component<{},Props> {
       obj[0].sequence.map((item: any) => {
         user = item.key_holder
         keys.push({
-          label: item.key_id +" - "+ item.sequence,
+          label: item.key_id +"-"+ item.sequence,
           value: item.id
         })
-        keyValues.push(item.id)
+        keyValues.push({
+          label: item.key_id +"-"+ item.sequence,
+          value: item.id
+        })
       });
       var name = obj[0].name
       var issueDate = new Date(obj[0].issue_date)

@@ -10,6 +10,7 @@ import axiosInstance from '../../api/api';
 import { Toast } from 'primereact/toast';
 import { css } from "@emotion/core";
 import FadeLoader from "react-spinners/FadeLoader";
+import Select from "react-select";
 
 const override = css`
   margin: 0 auto;
@@ -29,33 +30,48 @@ interface Props {
     [key: string]: any;
 }
 
-class KeyRequest extends React.Component<{modal:any, addtoast:any},Props> {
+class KeyRequest extends React.Component<{modal:any, addtoast:any,keyCode: any},Props> {
     toast: React.RefObject<any>;
     constructor(props:any){
         super(props);
+        console.log(props)
         this.toast = React.createRef();
         this.state={
           option:'',
           pickupPerson:'',
           company:'',
-          phone:'',
-          email:'',
+          companies: [],
+          phone: localStorage.getItem('phone'),
+          email: localStorage.getItem('email'),
           address:'',
-          authcusname:'',
+          authcusname: localStorage.getItem('username'),
           orderno:'',
-          keys : [{quantity: 0, key_code: "", brand: "Mul-T-Lock"}],
+          keys : [{quantity: 0, key_code: this.props.keyCode, brand: "Mul-T-Lock"}],
           image:null,
           imageLabel:[],
           loading:false,
           datasetId:0,
         }
     }
+    
+    componentDidMount = () => {
+      this.getCompanies()
+    }
 
-          options = [
-            { value: 'pending', label: 'Open' },
-            { value: 'accepted', label: 'Accepted' },
-            { value: 'rejected', label: 'Rejected' },
-          ];
+    options = [
+      { value: 'pending', label: 'Open' },
+      { value: 'accepted', label: 'Accepted' },
+      { value: 'rejected', label: 'Rejected' },
+    ];
+
+    getCompanies = () => {
+      axiosInstance
+        .get(`/api/customer/company/details/`).then(res => {
+            this.setState({companies: res.data.data.map((obj: any) => {
+              return  {label: obj.location, value: obj.location_no,address:obj.address}
+            } )});
+        })
+    }
 
     handleNumber = (e:any) =>{
         this.setState({quantity: e.target.value});
@@ -208,6 +224,10 @@ class KeyRequest extends React.Component<{modal:any, addtoast:any},Props> {
     }  
     }
 
+    handleChangeLocation =  (opt:any, e:any) => {
+      this.setState({company: opt.label, address: opt.address})
+    }
+
     handleFile = (e:any) =>{
        /* let updated = [...this.state.image];
        updated.push(e.target.files[0]); */
@@ -245,27 +265,32 @@ class KeyRequest extends React.Component<{modal:any, addtoast:any},Props> {
             </div>
             <form style={{marginTop:"1.875rem"}}>
                 <div className="row">
-                    <div className="col" style={{paddingBottom:'20px'}}>
-                        <input style={{width:"18.75rem",height:"2.5rem", marginLeft:'1.875rem'}} name="company"  className="form-control"   placeholder="Company*" onChange={this.handleInputChange}/>
+                    <div className="col m-2" >
+                        <Select
+                            onChange={this.handleChangeLocation}
+                            className="dropdown "
+                            options={this.state.companies}
+                            placeholder={'Company'}
+                        />
                     </div>
-                    <div className="col">
-                        <input style={{width:"18.75rem",height:"2.5rem", marginLeft:'-2.5rem'}} name="phone" className="form-control"   placeholder="Phone*"  onChange={this.handleInputChange}/>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col" style={{paddingBottom:'20px'}}>
-                        <input style={{width:"18.75rem",height:"2.5rem",marginLeft:'1.875rem'}} name="email" type="email"  className="form-control"  placeholder="Email Id*" onChange={this.handleInputChange}/>
-                    </div>
-                    <div className="col">
-                        <input style={{width:"18.75rem",height:"2.5rem", marginLeft:'-2.5rem'}} name="address" type="email"  className="form-control"  placeholder="Address*" onChange={this.handleInputChange}/>
+                    <div className="col m-2">
+                        <input  name="phone" className="form-control"   placeholder="Phone*" value={this.state.phone}  onChange={this.handleInputChange}/>
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col" style={{paddingBottom:'20px'}}>
-                        <input style={{width:"18.75rem",height:"2.5rem",marginLeft:'1.875rem'}} name="authcusname" className="form-control"  placeholder="Authorized Customer Name*" onChange={this.handleInputChange}/>
+                    <div className="col m-2">
+                        <input  name="email" type="email"  className="form-control"  placeholder="Email Id*" value={this.state.email} onChange={this.handleInputChange}/>
                     </div>
-                    <div className="col">
-                        <input style={{width:"18.75rem",height:"2.5rem", marginLeft:'-2.5rem'}} name="orderno" className="form-control"  placeholder="Purchased Order Number*" onChange={this.handleInputChange}/>
+                    <div className="col m-2">
+                        <input  name="address" type="email"  className="form-control" value={this.state.address}  placeholder="Address*" onChange={this.handleInputChange}/>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col m-2">
+                        <input  name="authcusname" className="form-control" value={this.state.authcusname}  placeholder="Authorized Customer Name*" onChange={this.handleInputChange}/>
+                    </div>
+                    <div className="col m-2">
+                        <input  name="orderno" className="form-control"  placeholder="Purchased Order Number*" onChange={this.handleInputChange}/>
                     </div>
                 </div>
             </form>
@@ -357,7 +382,7 @@ class KeyRequest extends React.Component<{modal:any, addtoast:any},Props> {
                                 <input type="number" min="0" className="form-control" data-id={idx} id={quantity} name='quantity' onChange={this.handleInputChange} />
                             </td>
                             <td style={{width:'20rem'}}>
-                                <input type="text" className="form-control" name='key_code' data-id={idx} id={key_code} placeholder="key code" onChange={this.handleInputChange}/>
+                                <input type="text" className="form-control" name='key_code' value={val.key_code} data-id={idx} id={key_code} placeholder="key code" onChange={this.handleInputChange}/>
                             </td>
                             <td  style={{width:'12rem'}}>
                                  <select name="brand" id={brand} data-id={idx} style={{paddingRight:'10px'}} className="form-control" onChange={this.handleInputChange} placeholder='Selected Options'>

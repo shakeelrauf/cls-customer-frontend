@@ -35,6 +35,7 @@ interface Props{
   view:any;
   currentuser:any;
   showDetails: any;
+  requestedItem: any;
   isSelected:any;
   file:any;
   files:any;
@@ -57,6 +58,7 @@ class ViewKeys extends React.Component<{},Props> {
 
     this.state={
       showDetails: false,
+      requestedItem: '',
       edit:false,
       data:[],
       view:[],
@@ -366,13 +368,14 @@ class ViewKeys extends React.Component<{},Props> {
       <div style={{textAlign:'right'}}>
                   <img alt="cancel" style={{width:'1.875rem',cursor:'pointer'}} onClick={this.closeModal} src={cancel}/>
                 </div>
-    <KeyRequest modal={this.modal}  addtoast={this.addToast} />
+    <KeyRequest modal={this.modal}  addtoast={this.addToast} keyCode={this.state.requestedItem ? this.state.requestedItem.key_id : ""} />
     </>
     )
   }
 
-  request = () => {
-    this.setState({modalIsOpen:true});
+  request = (item: any) => {
+    debugger
+    this.setState({modalIsOpen:true , requestedItem: item});
   }
 
   onPageChange = (event:any) => {
@@ -433,7 +436,7 @@ closeModal = () =>{
                 <td>{item.key_description}</td>
                 <td>{item.quantity}</td>
                 <td style={{textAlign:"right"}}>
-                  <img alt="keyrequest" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.5rem'}} onClick={this.request} src={shopping}/>
+                  <img alt="keyrequest" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.5rem'}} onClick={() => this.request(item)} src={shopping}/>
                   {<a href={`${baseURL}/api/kdfinder/csv/key-sequence/${this.state.currentuser.id}/${this.state.isSelected.file_number}/${item.id}/`} ><img alt="csv1" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.3rem'}} src={csv1}/></a>}
                   {<a href={`${baseURL}/api/kdfinder/pdf/key-sequence/${this.state.currentuser.id}/${this.state.isSelected.file_number}/${item.id}/`} ><img alt="pdf1" style={{marginLeft:"0.938rem",cursor:"pointer",width:'1.3rem'}} src={image}/></a>}
 

@@ -100,6 +100,8 @@ let Login=()=> {
                     localStorage.setItem('access_token', res.data.access);
                     localStorage.setItem('refresh_token', res.data.refresh);
                     localStorage.setItem('username', res.data.username);
+                    localStorage.setItem('email', res.data.email);
+                    localStorage.setItem('phone', res.data.phone);
                     localStorage.setItem('invoice', res.data.user_access.inv_statements);
                     localStorage.setItem('quotes', res.data.user_access.quotes);
                     localStorage.setItem('service_request', res.data.user_access.service_request);
