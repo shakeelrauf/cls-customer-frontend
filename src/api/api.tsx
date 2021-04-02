@@ -1,5 +1,7 @@
 import axios from 'axios';
-export const baseURL = "http://localhost:8001";
+import env from 'react-dotenv';
+
+export const baseURL = env.API_URL;
 
 
   const axiosInstance = axios.create({
