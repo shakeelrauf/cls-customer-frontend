@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState} from 'react';
 import { useHistory } from 'react-router-dom';
 import axiosInstance from '../../api/api';
 import { Toast } from 'primereact/toast';
@@ -8,6 +8,8 @@ import FadeLoader from "react-spinners/FadeLoader";
 import { css } from "@emotion/core";
 import ReactTooltip from 'react-tooltip';
 import info from '../icons/info.svg';
+import ReCAPTCHA from "react-google-recaptcha";
+import env from "react-dotenv";
 
 const validEmailRegex = RegExp(
     /^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i
@@ -25,6 +27,7 @@ const validEmailRegex = RegExp(
 let Login=()=> {
     let history = useHistory()
     const mytoast:any = useRef(null);
+    const recaptchaRef:any = useRef(null);
 
     const initialFormData = Object.freeze({
 		email: '',
@@ -35,7 +38,8 @@ let Login=()=> {
     const [errorPassword, setErrorPassword] = useState('');
     let [loading, setLoading] = useState<any>(false);
     const [remember, setRemember] = useState<any>(false);
-
+    const [ableToSubmit, setAbleToSubmit] = useState<any>(false);
+    
     const handleInputChange = (e: { target: { name: any; value: any; }; }) =>{
         let name = e.target.name;
         let value = e.target.value;
@@ -74,69 +78,81 @@ let Login=()=> {
         setErrorPassword(errorPassword);
         return isValid
     }
+    const handleVerifyRecaptch = (e: any) => {
+        var recaptchaValue = recaptchaRef.current.getValue();
+        if(recaptchaValue){
+            setAbleToSubmit(true)
+        }
+    }
+    const handleExpireRecaptcha = () => {
+        setAbleToSubmit(false)
+    }
 
     const handleSubmit = (e:any) => {
         e.preventDefault();
-        let isValid = formValidation();
-        if(isValid){
-            axiosInstance
-			.post(`/api/customer/login/`, {
-				email: formData.email,
-                password: formData.password,
-			})
-			.then((res) => {
-                if(remember===true){
-                    localStorage.setItem('email', formData.email );
-                    localStorage.setItem('password', formData.password );
-                    localStorage.setItem('remember', remember);
-                }   else if(remember===false){
-                    localStorage.removeItem('email');
-                    localStorage.removeItem('password');
-                    localStorage.removeItem('remember');
-                }
+        var recaptchaValue = recaptchaRef.current.getValue();
+        if(recaptchaValue != ""){
+            let isValid = formValidation();
+            if(isValid){
+                axiosInstance
+                .post(`/api/customer/login/`, {
+                    email: formData.email,
+                    password: formData.password,
+                })
+                .then((res) => {
+                    if(remember===true){
+                        localStorage.setItem('email', formData.email );
+                        localStorage.setItem('password', formData.password );
+                        localStorage.setItem('remember', remember);
+                    }   else if(remember===false){
+                        localStorage.removeItem('email');
+                        localStorage.removeItem('password');
+                        localStorage.removeItem('remember');
+                    }
 
-                if(res.data.is_active)
-                {  
-                    localStorage.setItem('access_token', res.data.access);
-                    localStorage.setItem('refresh_token', res.data.refresh);
-                    localStorage.setItem('username', res.data.username);
-                    localStorage.setItem('invoice', res.data.user_access.inv_statements);
-                    localStorage.setItem('quotes', res.data.user_access.quotes);
-                    localStorage.setItem('service_request', res.data.user_access.service_request);
-                    localStorage.setItem('key_finder', res.data.user_access.key_finder);
-                    localStorage.setItem('audit', res.data.user_access.audit);
-                    localStorage.setItem('user_type', res.data.user_type);
-                    axiosInstance.defaults.headers['Authorization'] =
-                        'JWT ' + localStorage.getItem('access_token');
-                       setLoading(false);
-                    if(res.data.user_type==="primary"){
-                        if(res.data.user_access.inv_statements || res.data.user_access.quotes){
-                            history.push("/home/accounting");
-                        }else {
-                            history.push("/home/companydetails");
-                        }
-                        
-                    }else if(res.data.user_type==='additional'){
-                        if(res.data.last_login==null){
-                            history.push("/changepassword");
-                        }else {
+                    if(res.data.is_active)
+                    {  
+                        localStorage.setItem('access_token', res.data.access);
+                        localStorage.setItem('refresh_token', res.data.refresh);
+                        localStorage.setItem('username', res.data.username);
+                        localStorage.setItem('invoice', res.data.user_access.inv_statements);
+                        localStorage.setItem('quotes', res.data.user_access.quotes);
+                        localStorage.setItem('service_request', res.data.user_access.service_request);
+                        localStorage.setItem('key_finder', res.data.user_access.key_finder);
+                        localStorage.setItem('audit', res.data.user_access.audit);
+                        localStorage.setItem('user_type', res.data.user_type);
+                        axiosInstance.defaults.headers['Authorization'] =
+                            'JWT ' + localStorage.getItem('access_token');
+                        setLoading(false);
+                        if(res.data.user_type==="primary"){
                             if(res.data.user_access.inv_statements || res.data.user_access.quotes){
                                 history.push("/home/accounting");
-                              }else {
+                            }else {
                                 history.push("/home/companydetails");
-                              }
+                            }
+                            
+                        }else if(res.data.user_type==='additional'){
+                            if(res.data.last_login==null){
+                                history.push("/changepassword");
+                            }else {
+                                if(res.data.user_access.inv_statements || res.data.user_access.quotes){
+                                    history.push("/home/accounting");
+                                }else {
+                                    history.push("/home/companydetails");
+                                }
+                            }
                         }
+                    }else {
+                        mytoast.current.show({severity: 'error', detail: 'You are Disabled from primary user'});
                     }
-                }else {
-                    mytoast.current.show({severity: 'error', detail: 'You are Disabled from primary user'});
-                }
-            })
-            .catch((error)=>{
-                mytoast.current.show({severity: 'error', detail: 'Wrong email or password'});
-                setLoading(false);
-            })
-            setLoading(true);
+                })
+                .catch((error)=>{
+                    mytoast.current.show({severity: 'error', detail: 'Wrong email or password'});
+                    setLoading(false);
+                })
+                setLoading(true);
 
+            }
         }
          
     }
@@ -195,8 +211,14 @@ let Login=()=> {
                     </div>
                 </div>
                 <div className="form-group">
-                    <button style={{width:"22.063rem",height:"2.5rem",backgroundColor:"#009ED6"}} className="btn btn-primary" type="submit">Login</button>
+                    <button style={{width:"22.063rem",height:"2.5rem",backgroundColor:"#009ED6"}} className="btn btn-primary" type="submit" disabled={!ableToSubmit}>Login</button>
                 </div>
+                <ReCAPTCHA
+                    onChange={handleVerifyRecaptch}
+                    ref={recaptchaRef}
+                    sitekey={env.RECAPTCHA_SITE_KEY}
+                    onExpired={()=>{handleExpireRecaptcha()}}
+                />
                 <div>
                     <label className="create mt-2" onClick={login} style={{fontSize:"1rem",color:"#009ED6",fontWeight:"bold"}}>
                        Create Account 
